@@ -7,7 +7,7 @@ library(ggrepel)
 tm_url <- "https://www.transfermarkt.co.in/laliga/scorerliste/wettbewerb/ES1/saison_id/2019/altersklasse/alle/plus/1/page/"
 
 ## Build url for each page ====
-tm_urls <-map_chr(seq(1:11), ~str_c(tm_url, .x))
+tm_urls <- map_chr(seq(1:11), ~str_c(tm_url, .x))
 
 ## Build function to harvest table ====
 rvest_tm_scorers <- function(tm_url) {
@@ -80,9 +80,14 @@ scorers_prop <- scorers_prop %>%
     )
   )
 
+## Perform other adjustments ====
+scorers_prop <- scorers_prop %>% 
+  filter(position2 != "Portero")
+
 ## Save temporary dataset ====
 ### (Preserve a copy in case getting data online isn't available)
 save(scorers_prop, file = "tmp/scorers_prop.Rdata")
+#load("tmp/scorers_prop.Rdata")
 
 ## Set vis colors ====
 background <- "#0D0C2B"
@@ -92,6 +97,7 @@ goalkeepers <- "grey"
 defenders <- "springgreen"
 midfielders <- "orange"
 strikers <- "firebrick1"
+legend <- "grey"
 
 ## Set vis font ====
 windowsFonts(SegoeUI = windowsFont("Segoe UI"))
@@ -100,7 +106,7 @@ windowsFonts(TrebuchetMS = windowsFont("Trebuchet MS"))
 ## Visualize results ====
 ggplot(scorers_prop) + 
   aes(goal_prop, assist_prop, label = player, color = position2) + 
-  geom_hline(yintercept = 18, color = lines, alpha = .1, size = 1.5) + 
+  geom_hline(yintercept = 16, color = lines, alpha = .1, size = 1.5) + 
   geom_vline(xintercept = 22, color = lines, alpha = .1, size = 1.5) + 
   annotate("text", x = 40, y = 35, 
            family = "SegoeUI", fontface = "bold.italic", color = text, 
@@ -116,7 +122,10 @@ ggplot(scorers_prop) +
         plot.background = element_rect(fill = background), 
         text = element_text(family = "SegoeUI", color = text), 
         axis.text = element_text(color = text), 
-        legend.position = "none")
+        legend.position = "bottom", 
+        legend.title = element_blank(), 
+        legend.text = element_text(size = 12, color = legend), 
+        legend.spacing.x = unit(1, "cm"))
 
 ## Save visualization png ====
 ggsave("tmp/goals_assists.png", width = 40, height = 20, units = "cm")
