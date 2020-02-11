@@ -65,7 +65,23 @@ scorers_prop <- scorers %>%
   group_by(team) %>% 
   add_tally(goals, name = "team_goals") %>% 
   add_tally(assists, name = "team_assists") %>% 
-  mutate(goal_prop = goals / team_goals * 100, 
+  mutate(team_goals2 = case_when(
+    team == "cd-leganes" ~ 18, 
+    team == "athletic-bilbao" ~ 23, 
+    team == "celta-vigo" ~ 19, 
+    team == "fc-barcelona" ~ 55, 
+    team == "fc-getafe" ~ 35, 
+    team == "fc-granada" ~ 27, 
+    team == "fc-sevilla" ~ 29, 
+    team == "fc-valencia" ~ 33, 
+    team == "fc-villarreal" ~ 40, 
+    team == "rcd-mallorca" ~ 22, 
+    team == "real-madrid" ~ 44, 
+    team == "real-sociedad-san-sebastian" ~ 39, 
+    team == "real-valladolid" ~ 19
+  )) %>% 
+  mutate(team_goals2 = map2_dbl(team_goals2, team_goals, replace_na)) %>% 
+  mutate(goal_prop = goals / team_goals2 * 100, 
          assist_prop = assists / team_assists * 100) %>% 
   drop_na(team)
 
@@ -78,10 +94,7 @@ scorers_prop <- scorers_prop %>%
       str_detect(position, "Midfield") ~ "Mediocampista", 
       str_detect(position, "Forward|Striker|Winger") ~ "Delantero"
     )
-  )
-
-## Perform other adjustments ====
-scorers_prop <- scorers_prop %>% 
+  ) %>% 
   filter(position2 != "Portero")
 
 ## Save temporary dataset ====
@@ -90,7 +103,7 @@ save(scorers_prop, file = "tmp/scorers_prop.Rdata")
 #load("tmp/scorers_prop.Rdata")
 
 ## Set vis colors ====
-background <- "#0D0C2B"
+background <- "#0A0920"
 lines <- "ivory"
 text <- "whitesmoke"
 goalkeepers <- "grey"
@@ -108,7 +121,7 @@ ggplot(scorers_prop) +
   aes(goal_prop, assist_prop, label = player, color = position2) + 
   geom_hline(yintercept = 16, color = lines, alpha = .1, size = 1.5) + 
   geom_vline(xintercept = 22, color = lines, alpha = .1, size = 1.5) + 
-  annotate("text", x = 40, y = 35, 
+  annotate("text", x = 40, y = 31, 
            family = "SegoeUI", fontface = "bold.italic", color = text, 
            label = "Alta participación \nen goles y asistencias") + 
   geom_point(alpha = .5) + 
@@ -122,11 +135,12 @@ ggplot(scorers_prop) +
         plot.background = element_rect(fill = background), 
         text = element_text(family = "SegoeUI", color = text), 
         axis.text = element_text(color = text), 
-        legend.position = "bottom", 
-        legend.title = element_blank(), 
-        legend.text = element_text(size = 12, color = legend), 
-        legend.spacing.x = unit(1, "cm"))
+        #legend.title = element_blank(), 
+        #legend.text = element_text(size = 12, color = legend), 
+        #legend.spacing.x = unit(1, "cm"), 
+        legend.position = "none")
 
 ## Save visualization png ====
-ggsave("tmp/goals_assists.png", width = 40, height = 20, units = "cm")
+ggsave("tmp/goals_assists.png", width = 25, height = 15, units = "cm", 
+       dpi = "retina")
 
