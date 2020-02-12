@@ -110,6 +110,7 @@ goalkeepers <- "grey"
 defenders <- "springgreen"
 midfielders <- "orange"
 strikers <- "firebrick1"
+strikers <- "lightskyblue"
 legend <- "grey"
 
 ## Set vis font ====
@@ -117,6 +118,9 @@ windowsFonts(SegoeUI = windowsFont("Segoe UI"))
 windowsFonts(TrebuchetMS = windowsFont("Trebuchet MS"))
 
 ## Visualize results ====
+title1 <- "La Liga 19/20: Participación en goles y asistencias con respecto al equipo"
+subtitle1 <- "Números a la jornada 23"
+
 ggplot(scorers_prop) + 
   aes(goal_prop, assist_prop, label = player, color = position2) + 
   geom_hline(yintercept = 16, color = lines, alpha = .1, size = 1.5) + 
@@ -128,17 +132,45 @@ ggplot(scorers_prop) +
   geom_text_repel(data = filter(scorers_prop, goal_prop > 24 | assist_prop > 20), 
     size = 3.8, fontface = "bold.italic", family = "SegoeUI") + 
   scale_color_manual(values = c(defenders, strikers, midfielders, goalkeepers)) + 
-  labs(x = "Porcentaje de goles", y = "Porcentaje de asistencias", 
+  labs(title = title1, subtitle = subtitle1,  
+       x = "Porcentaje de goles", y = "Porcentaje de asistencias", 
        caption = "Fuente: TransferMarkt") + 
   theme_minimal() + 
   theme(panel.grid = element_blank(), 
         plot.background = element_rect(fill = background), 
         text = element_text(family = "SegoeUI", color = text), 
         axis.text = element_text(color = text), 
-        #legend.title = element_blank(), 
-        #legend.text = element_text(size = 12, color = legend), 
-        #legend.spacing.x = unit(1, "cm"), 
-        legend.position = "none")
+        legend.title = element_blank(), 
+        legend.text = element_text(size = 12, color = legend), 
+        legend.spacing.x = unit(1, "cm"), 
+        legend.position = "bottom"
+        )
+
+ggplot(scorers_prop) + 
+  aes(goal_prop, assist_prop, label = player, color = position2) + 
+  geom_hline(yintercept = 16, color = lines, alpha = .1, size = 1.5) + 
+  geom_vline(xintercept = 22, color = lines, alpha = .1, size = 1.5) + 
+  annotate("text", x = 38, y = 32, 
+           family = "SegoeUI", fontface = "bold.italic", color = legend, 
+           label = "Alta participación \nen goles y asistencias") + 
+  geom_point(size = 4, alpha = .5) + 
+  geom_text_repel(data = filter(scorers_prop, goal_prop > 24 | assist_prop > 20), 
+                  size = 3.8, fontface = "bold.italic", family = "SegoeUI", color = text) + 
+  scale_color_manual(values = c(defenders, strikers, midfielders, goalkeepers)) + 
+  labs(title = title1, subtitle = subtitle1, 
+       x = "Porcentaje de goles", y = "Porcentaje de asistencias", 
+       caption = "Fuente: TransferMarkt") + 
+  theme_minimal() + 
+  theme(panel.grid = element_blank(), 
+        plot.background = element_rect(fill = background), 
+        text = element_text(family = "SegoeUI", color = text), 
+        title = element_text(face = "bold", size = 20), 
+        axis.text = element_text(color = text), 
+        legend.title = element_blank(), 
+        legend.text = element_text(size = 12, color = legend), 
+        legend.spacing.x = unit(1, "cm"), 
+        legend.position = "bottom"
+  )
 
 ## Save visualization png ====
 ggsave("tmp/goals_assists.png", width = 25, height = 15, units = "cm", 
