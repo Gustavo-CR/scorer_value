@@ -95,6 +95,7 @@ scorers_prop <- scorers_prop %>%
       str_detect(position, "Forward|Striker|Winger") ~ "Delantero"
     )
   ) %>% 
+  mutate(position2 = factor(position2, c("Defensa", "Mediocampista", "Delantero"))) %>% 
   filter(position2 != "Portero")
 
 ## Save temporary dataset ====
@@ -118,7 +119,7 @@ windowsFonts(SegoeUI = windowsFont("Segoe UI"))
 windowsFonts(TrebuchetMS = windowsFont("Trebuchet MS"))
 
 ## Visualize results ====
-title1 <- "La Liga 19/20: Participación en goles y asistencias con respecto al equipo"
+title1 <- "La Liga 19/20: Contribución de goles y asistencias con respecto al equipo"
 subtitle1 <- "Números a la jornada 23"
 
 ggplot(scorers_prop) + 
@@ -139,12 +140,12 @@ ggplot(scorers_prop) +
   theme(panel.grid = element_blank(), 
         plot.background = element_rect(fill = background), 
         text = element_text(family = "SegoeUI", color = text), 
+        title = element_text(face = "bold", size = 18), 
         axis.text = element_text(color = text), 
         legend.title = element_blank(), 
         legend.text = element_text(size = 12, color = legend), 
         legend.spacing.x = unit(1, "cm"), 
-        legend.position = "bottom"
-        )
+        legend.position = "bottom")
 
 ggplot(scorers_prop) + 
   aes(goal_prop, assist_prop, label = player, color = position2) + 
@@ -156,7 +157,8 @@ ggplot(scorers_prop) +
   geom_point(size = 4, alpha = .5) + 
   geom_text_repel(data = filter(scorers_prop, goal_prop > 24 | assist_prop > 20), 
                   size = 3.8, fontface = "bold.italic", family = "SegoeUI", color = text) + 
-  scale_color_manual(values = c(defenders, strikers, midfielders, goalkeepers)) + 
+  scale_color_manual(values = c(defenders, midfielders, strikers), 
+                     guide = guide_legend()) + 
   labs(title = title1, subtitle = subtitle1, 
        x = "Porcentaje de goles", y = "Porcentaje de asistencias", 
        caption = "Fuente: TransferMarkt") + 
@@ -164,15 +166,14 @@ ggplot(scorers_prop) +
   theme(panel.grid = element_blank(), 
         plot.background = element_rect(fill = background), 
         text = element_text(family = "SegoeUI", color = text), 
-        title = element_text(face = "bold", size = 20), 
+        title = element_text(face = "bold", size = 18), 
         axis.text = element_text(color = text), 
         legend.title = element_blank(), 
         legend.text = element_text(size = 12, color = legend), 
-        legend.spacing.x = unit(1, "cm"), 
-        legend.position = "bottom"
-  )
+        legend.spacing.x = unit(.7, "cm"), 
+        legend.position = "bottom")
 
 ## Save visualization png ====
-ggsave("tmp/goals_assists.png", width = 25, height = 15, units = "cm", 
+ggsave("tmp/goals_assists.png", width = 28, height = 18, units = "cm", 
        dpi = "retina")
 
